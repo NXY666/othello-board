@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+	<meta charset="UTF-8">
+	<title>黑白棋盘 -  Othello Board</title>
+	<link rel="stylesheet" href="othello.css">
+	<script src="othello.js"></script>
+</head>
+<body>
+	<div class="view">
+		<div class="top-bar">
+			<div class="left-bar">
+				<div class="side-bar-title">
+					<div class="stone black" style="width: 32px; min-width: 32px; height: 32px;"></div>
+					<span class="side-bar-title-text">黑棋</span>
+				</div>
+				<div class="side-bar-score-box">
+					<span class="side-bar-score" id="black-score">0</span>
+					分
+				</div>
+			</div>
+			<div class="middle-bar">
+				<div class="board-grid board-lines" id="board">
+				</div>
+				<div class="turn-bar" id="turn-bar">
+					<div class="stone black" id="turn-icon" style="width: 32px; min-width: 32px; height: 32px;"></div>
+					<span class="turn-bar-text" id="turn-text">等待开局</span>
+				</div>
+			</div>
+			<div class="right-bar">
+				<div class="side-bar-title">
+					<div class="stone white" style="width: 32px; min-width: 32px; height: 32px;"></div>
+					<span class="side-bar-title-text">白棋</span>
+				</div>
+				<div class="side-bar-score-box">
+					<span class="side-bar-score" id="white-score">0</span>
+					分
+				</div>
+			</div>
+		</div>
+		<div class="button-bar">
+			<button onclick="confirm('即将执行重置页面操作，该操作不可撤销。') && location.reload()">重置</button>
+			<button onclick="confirm('即将执行开局操作，该操作不可撤销。') && startGame()">开始</button>
+			<button onclick="undoHistory()">撤销</button>
+			<button onclick="redoHistory()">重做</button>
+		</div>
+	</div>
+</body>
+</html>
