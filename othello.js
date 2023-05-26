@@ -9,12 +9,15 @@ const OTHELLO_BOARD = [
 	[null, null, null, null, null, null, null, null],
 	[null, null, null, null, null, null, null, null]
 ];
+OTHELLO_BOARD.timerDeadline = 0;
+OTHELLO_BOARD.timerLimit = 0;
 
 // 历史记录
 let undoList = [], redoList = [];
 function makeHistoryItem(turn) {
 	let historyItem = JSON.parse(JSON.stringify(OTHELLO_BOARD));
 	historyItem.turn = turn;
+	historyItem.canPlaceCount = OTHELLO_BOARD.canPlaceCount;
 	return historyItem;
 }
 function recordHistory(turn) {
@@ -34,6 +37,8 @@ function undoHistory() {
 		});
 
 		setTurn(undoItem.turn);
+		OTHELLO_BOARD.canPlaceCount = undoItem.canPlaceCount;
+
 		calculateScore();
 	}
 }
@@ -50,6 +55,7 @@ function redoHistory() {
 		});
 
 		setTurn(redoItem.turn);
+		OTHELLO_BOARD.canPlaceCount = redoItem.canPlaceCount;
 
 		calculateScore();
 
@@ -115,10 +121,12 @@ let turn = false;
 function setTurn(newTurn) {
 	turn = newTurn;
 	showTurn();
+	resetTimer();
 }
 function switchTurn() {
 	turn = !turn;
 	showTurn();
+	resetTimer();
 }
 function showTurn() {
 	turnBarEl.classList.add("expand");
@@ -130,6 +138,190 @@ function showTurn() {
 	turnTextEl.textContent = `${turn ? "白" : "黑"}方回合`;
 
 	turnTextEl.style.color = turn ? "gray" : "#1B1B1B";
+}
+
+// 设置
+let settingsFormEl;
+const DEFAULT_SETTINGS = {
+	// 计时
+	timerEnabled: false,
+	timerBlackLimit: 60,
+	timerWhiteLimit: 60,
+	timerPunish: "none"
+};
+let settings;
+/**
+ * 合并两个对象
+ * @param {object} def 默认对象
+ * @param {object} act 实际对象
+ * @returns {object} 合并后的对象
+ */
+function deepMergeObject(def, act) {
+	if (typeof def == "undefined" || def == null) {
+		return act;
+	} else if (typeof act == "undefined" || act == null) {
+		return def;
+	}
+
+	if (typeof def !== "object" || typeof act !== "object") {
+		return typeof def !== typeof act ? def : act;
+	} else if (Array.isArray(def) !== Array.isArray(act)) {
+		return def;
+	} else if (Array.isArray(def) && Array.isArray(act)) {
+		return def.concat(act);
+	}
+
+	let res = {};
+	for (let k in def) {
+		res[k] = deepMergeObject(def[k], act[k]);
+	}
+	for (let k in act) {
+		res[k] = deepMergeObject(def[k], act[k]);
+	}
+	return res;
+}
+function readSettings() {
+	let settings;
+	try {
+		settings = deepMergeObject(DEFAULT_SETTINGS, JSON.parse(window.localStorage.getItem("settings")));
+	} catch (e) {
+		console.log(e);
+		settings = DEFAULT_SETTINGS;
+	}
+	return settings;
+}
+function saveSettings(settings) {
+	window.localStorage.setItem("settings", JSON.stringify(settings));
+}
+function readSettingsForm() {
+	let settings = {};
+	for (let i = 0; i < settingsFormEl.length; i++) {
+		const item = settingsFormEl[i], key = item.name;
+		switch (settingsFormEl[i].type) {
+			case "button":
+			case "color":
+			case "date":
+			case "datetime-local":
+			case "email":
+			case "file":
+			case "hidden":
+			case "image":
+			case "month":
+			case "password":
+			case "search":
+			case "submit":
+			case "tel":
+			case "text":
+			case "time":
+			case "url":
+			case "week":
+			case "select-one": {
+				settings[key] = item.value;
+				break;
+			}
+			case "checkbox":
+			case "radio": {
+				settings[key] = item.checked;
+				break;
+			}
+			case "number": {
+				settings[key] = parseInt(item.value);
+				break;
+			}
+			case "range": {
+				settings[key] = parseFloat(item.value);
+				break;
+			}
+			case "reset": {
+				break;
+			}
+			default: {
+				console.warn(`未知的设置类型：${item.type}`);
+				break;
+			}
+		}
+	}
+	return settings;
+}
+function writeSettingsForm(settings) {
+	for (let i = 0; i < settingsFormEl.length; i++) {
+		const item = settingsFormEl[i], key = item.name;
+		switch (item.type) {
+			case "button":
+			case "color":
+			case "date":
+			case "datetime-local":
+			case "email":
+			case "file":
+			case "hidden":
+			case "image":
+			case "month":
+			case "password":
+			case "search":
+			case "submit":
+			case "tel":
+			case "text":
+			case "time":
+			case "url":
+			case "week":
+			case "select-one": {
+				item.value = settings[key];
+				break;
+			}
+			case "checkbox":
+			case "radio": {
+				item.checked = settings[key];
+				break;
+			}
+			case "number":
+			case "range": {
+				item.value = String(settings[key]);
+				break;
+			}
+			case "reset": {
+				break;
+			}
+			default: {
+				console.warn(`未知的设置类型：${item.type}`);
+				break;
+			}
+		}
+	}
+}
+function initSettings() {
+	settings = readSettings();
+	writeSettingsForm(settings);
+}
+function applySettings() {
+	settings = readSettingsForm();
+	// 持久化设置
+	saveSettings(settings);
+	// 隐藏设置
+	hideSettings();
+}
+function resetSettings() {
+	writeSettingsForm(DEFAULT_SETTINGS);
+}
+function showSettings() {
+	// 读取设置
+	writeSettingsForm(settings);
+
+	// 显示设置
+	settingsFormEl.classList.remove("hide");
+	settingsFormEl.classList.add("pre-show");
+	setTimeout(() => {
+		settingsFormEl.classList.remove("pre-show");
+		settingsFormEl.classList.add("show");
+	}, 200);
+}
+function hideSettings() {
+	// 隐藏设置
+	settingsFormEl.classList.remove("show");
+	settingsFormEl.classList.add("pre-hide");
+	setTimeout(() => {
+		settingsFormEl.classList.remove("pre-hide");
+		settingsFormEl.classList.add("hide");
+	}, 200);
 }
 
 let boardEl = null,
@@ -190,8 +382,74 @@ function resetBoard() {
 	}
 }
 
+// 计时器
+function resetTimer() {
+	if (OTHELLO_BOARD.settings.timerEnabled) {
+		let timerLimit;
+		if (turn) {
+			timerLimit = OTHELLO_BOARD.settings.timerWhiteLimit;
+		} else {
+			timerLimit = OTHELLO_BOARD.settings.timerBlackLimit;
+		}
+		OTHELLO_BOARD.timerDeadline = Date.now() + timerLimit * 1000;
+		OTHELLO_BOARD.timerLimit = timerLimit;
+	}
+}
+function showTimer() {
+	if (OTHELLO_BOARD.settings?.timerEnabled && OTHELLO_BOARD.canPlaceCount) {
+		const now = Date.now();
+		if (now < OTHELLO_BOARD.timerDeadline) {
+			const timeLeft = OTHELLO_BOARD.timerDeadline - now;
+			const timeLeftPercent = timeLeft / OTHELLO_BOARD.timerLimit / 1000;
+			turnBarEl.style.backgroundPosition = `0 ${timeLeftPercent * 100}%`;
+		} else {
+			turnBarEl.style.backgroundPosition = `0 0`;
+			turnTextEl.textContent = `${turn ? "白" : "黑"}方超时`;
+
+			// 计时器惩罚
+			timerPunish();
+		}
+	} else {
+		turnBarEl.style.backgroundImage = "white";
+		turnBarEl.style.backgroundPosition = `0 100%`;
+	}
+}
+function startTimerInterval() {
+	OTHELLO_BOARD.timerInterval = setInterval(showTimer, 200);
+}
+function stopTimerInterval() {
+	clearInterval(OTHELLO_BOARD.timerInterval);
+}
+function timerPunish() {
+	switch (OTHELLO_BOARD.settings.timerPunish) {
+		case "none":
+		default: {
+			break;
+		}
+		case "skip": {
+			// 非正常结束游戏，记录历史
+			recordHistory(turn);
+			// 跳过回合
+			switchTurn();
+			// 检查游戏状态
+			checkGameState();
+			break;
+		}
+		case "lose": {
+			// 非正常结束游戏，记录历史
+			recordHistory(turn);
+			// 结束游戏
+			gameOver(!turn);
+			break;
+		}
+	}
+}
+
 // 开局游戏
 function startGame() {
+	// 锁定设置
+	OTHELLO_BOARD.settings = JSON.parse(JSON.stringify(settings));
+
 	// 重置棋盘
 	resetBoard();
 
@@ -211,20 +469,16 @@ function startGame() {
 	// 重置分数
 	calculateScore();
 
+	// 重置计时器
+	resetTimer();
+
 	// 预测可落子位置
 	predPlacePos();
 }
 // 预测可落子位置
 function predPlacePos() {
 	// 从棋盘中移除所有预测可落子位置
-	for (let col = 0; col < OTHELLO_BOARD.length; col++) {
-		for (let row = 0; row < OTHELLO_BOARD[col].length; row++) {
-			const gridObj = OTHELLO_BOARD[col][row];
-			if (gridObj.type === "BLACK_CAN_PLACE" || gridObj.type === "WHITE_CAN_PLACE") {
-				changeStoneType(gridObj, "EMPTY");
-			}
-		}
-	}
+	removeAllPredPlacePos();
 
 	let canPlaceCount = 0;
 
@@ -249,7 +503,23 @@ function predPlacePos() {
 		}
 	}
 
+	OTHELLO_BOARD.canPlaceCount = canPlaceCount;
+
 	return canPlaceCount;
+}
+// 移除所有预测可落子位置
+function removeAllPredPlacePos() {
+	// 从棋盘中移除所有预测可落子位置
+	for (let col = 0; col < OTHELLO_BOARD.length; col++) {
+		for (let row = 0; row < OTHELLO_BOARD[col].length; row++) {
+			const gridObj = OTHELLO_BOARD[col][row];
+			if (gridObj.type === "BLACK_CAN_PLACE" || gridObj.type === "WHITE_CAN_PLACE") {
+				changeStoneType(gridObj, "EMPTY");
+			}
+		}
+	}
+
+	OTHELLO_BOARD.canPlaceCount = 0;
 }
 // 判断是否可以落子
 function canPlace(col, row, type) {
@@ -432,11 +702,19 @@ function checkGameState() {
 		gameOver();
 	}
 }
-function gameOver() {
-	// 计算分数
-	let scores = calculateScore();
+function gameOver(winnerTurn = null) {
+	if (winnerTurn === null) {
+		// 计算分数
+		let scores = calculateScore();
+		if (scores.blackScore !== scores.whiteScore) {
+			winnerTurn = scores.blackScore <= scores.whiteScore;
+		}
+	} else {
+		// 移除所有可落子位置
+		removeAllPredPlacePos();
+	}
 
-	if (scores.blackScore === scores.whiteScore) {
+	if (winnerTurn === null) {
 		// 平局
 		turnTextEl.innerText = "双方平局";
 		turnTextEl.style.color = "#1B1B1B";
@@ -445,8 +723,6 @@ function gameOver() {
 		turnIconEl.classList.remove("white");
 		turnIconEl.classList.add("double");
 	} else {
-		let winnerTurn = scores.blackScore <= scores.whiteScore;
-
 		// 显示游戏结束
 		turnTextEl.innerText = `${winnerTurn ? "白方" : "黑方"}获胜`;
 		turnTextEl.style.color = winnerTurn ? "gray" : "#1B1B1B";
@@ -456,7 +732,7 @@ function gameOver() {
 	}
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("DOMContentLoaded", () => {
 	boardEl = document.getElementById("board");
 
 	blackScoreEl = document.getElementById("black-score");
@@ -466,5 +742,23 @@ window.addEventListener("load", () => {
 	turnIconEl = document.getElementById("turn-icon");
 	turnTextEl = document.getElementById("turn-text");
 
+	settingsFormEl = document.getElementById("settings");
+	settingsFormEl.addEventListener("submit", e => {
+		e.preventDefault();
+		applySettings();
+	});
+	settingsFormEl.addEventListener("reset", e => {
+		e.preventDefault();
+		resetSettings();
+	});
+	initSettings();
+
 	resetBoard();
+
+	startTimerInterval();
+});
+
+// 禁用右键菜单
+window.addEventListener("contextmenu", e => {
+	e.preventDefault();
 });

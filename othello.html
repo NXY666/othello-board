@@ -2,8 +2,8 @@
 <html lang="ch">
 <head>
 	<meta charset="UTF-8">
-	<title>黑白棋盘 -  Othello Board</title>
-	<link rel="stylesheet" href="othello.css">
+	<title>黑白棋盘 - Othello Board</title>
+	<link href="othello.css" rel="stylesheet">
 	<script src="othello.js"></script>
 </head>
 <body>
@@ -40,10 +40,67 @@
 		</div>
 		<div class="button-bar">
 			<button onclick="confirm('即将执行重置页面操作，该操作不可撤销。') && location.reload()">重置</button>
+			<button onclick="showSettings()">设置</button>
 			<button onclick="confirm('即将执行开局操作，该操作不可撤销。') && startGame()">开始</button>
 			<button onclick="undoHistory()">撤销</button>
 			<button onclick="redoHistory()">重做</button>
 		</div>
 	</div>
+	<form class="hide" id="settings">
+		<div class="settings-container">
+			<div class="settings-box">
+				<div class="settings-inner-box">
+					<span class="settings-title">设置</span>
+					<div class="settings-cell">
+						<div class="settings-cell-item">
+							计时
+							<div class="switch" style="font-size: 9px; margin-right: 5px;">
+								<input id="timer-enabled" name="timerEnabled" type="checkbox">
+								<label for="timer-enabled"></label>
+							</div>
+						</div>
+						<div class="settings-cell-item">
+							黑方超时
+							<div style="display: flex; align-items: center;">
+								<label>
+									<input max="3600" min="1" name="timerBlackLimit" required
+										   style="margin-right: 10px; width: 30px;" type="number">
+								</label>
+								秒
+							</div>
+						</div>
+						<div class="settings-cell-item">
+							白方超时
+							<div style="display: flex; align-items: center;">
+								<label>
+									<input max="3600" min="1" name="timerWhiteLimit" required
+										   style="margin-right: 10px; width: 30px;" type="number">
+								</label>
+								秒
+							</div>
+						</div>
+						<div class="settings-cell-item">
+							超时动作
+							<div style="display: flex; align-items: center;">
+								<label>
+									<select name="timerPunish" required style="width: 76px;"
+											type="number">
+										<option value="none">无</option>
+										<option value="skip">跳过</option>
+										<option value="lose">判负</option>
+									</select>
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="settings-button-bar">
+						<button onclick="hideSettings()" type="button">取消</button>
+						<button type="reset">重置</button>
+						<button type="submit">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 </body>
 </html>
