@@ -38,12 +38,14 @@
 				</div>
 			</div>
 		</div>
-		<div class="button-bar">
-			<button onclick="confirm('即将执行重置页面操作，该操作不可撤销。') && location.reload()">重置</button>
-			<button onclick="showSettings()">设置</button>
-			<button onclick="confirm('即将执行开局操作，该操作不可撤销。') && startGame()">开始</button>
-			<button onclick="undoHistory()">撤销</button>
-			<button onclick="redoHistory()">重做</button>
+		<div class="button-bar-container">
+			<div class="button-bar">
+				<button onclick="confirm('即将执行重置操作，该操作不可撤销。') && location.reload()">重置</button>
+				<button onclick="showSettings()">设置</button>
+				<button onclick="confirm('即将执行开局操作，该操作不可撤销。') && startGame()">开始</button>
+				<button onclick="undoHistory()">撤销</button>
+				<button onclick="redoHistory()">重做</button>
+			</div>
 		</div>
 	</div>
 	<form class="hide" id="settings">

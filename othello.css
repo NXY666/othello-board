@@ -31,9 +31,9 @@ button {
 	color: #606266;
 	border: 1px solid #DCDFE6;
 	border-radius: 5px;
+	outline-color: var(--form-primary-color);
 	background-color: #FFF;
 	box-shadow: 0 1px 1px rgba(31, 31, 31, 0.04);
-	outline-color: var(--form-primary-color);
 }
 
 button:hover {
@@ -312,7 +312,7 @@ select:focus {
 }
 
 .right-bar {
-	--text-color: gray;
+	--text-color: grey;
 }
 
 .side-bar-title {
@@ -373,12 +373,21 @@ select:focus {
 	margin: 10px;
 }
 
-.button-bar {
-	position: absolute;
-	bottom: 40px;
-	left: 50%;
+.button-bar-container {
+	position: fixed;
+	right: 0;
+	bottom: 20px;
+	left: 0;
 	display: flex;
-	transform: translateX(-50%);
+}
+
+.button-bar {
+	display: flex;
+	margin: 0 auto;
+	padding: 15px 20px;
+	border-radius: 10px;
+	background-color: white;
+	box-shadow: 0 3px 6px rgba(140, 149, 159, 0.15);
 	gap: 10px;
 }
 
