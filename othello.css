@@ -242,7 +242,7 @@ select:focus {
 
 .stone.double {
 	animation: jelly-double 0.5s;
-	background: linear-gradient(-35deg, #DDDDDD, #EEEEEE 50%, #373737 50%, #737373);
+	background: linear-gradient(-55deg, #DDDDDD, #EEEEEE 50%, #373737 50%, #737373);
 	box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.25);
 }
 

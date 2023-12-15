@@ -12,6 +12,15 @@ const OTHELLO_BOARD = [
 OTHELLO_BOARD.timerDeadline = 0;
 OTHELLO_BOARD.timerLimit = 0;
 
+// 全屏
+async function fullscreen() {
+	if (document.fullscreenElement) {
+		await document.exitFullscreen();
+	} else {
+		await document.documentElement.requestFullscreen();
+	}
+}
+
 // 历史记录
 let undoList = [], redoList = [];
 function makeHistoryItem(turn) {
