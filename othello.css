@@ -8,6 +8,10 @@
 }
 
 * {
+	--board-padding: calc(var(--board-size) / 20);
+	--cell-size: calc(var(--board-size) / var(--grid-count));
+	--cell-border-width: calc(var(--cell-size) / 60);
+
 	line-height: 1;
 	user-select: none;
 }
@@ -157,7 +161,7 @@ select:focus {
 .middle-bar {
 	width: var(--board-size);
 	height: var(--board-size);
-	padding: calc(var(--board-size) / 20);
+	padding: var(--board-padding);
 	border-radius: 5px;
 	background-color: var(--backgorund-color);
 	background-image: url(https://s1.ax1x.com/2023/04/30/p93Qx9U.png);
@@ -166,17 +170,17 @@ select:focus {
 
 .board-grid {
 	display: grid;
-	grid-template-columns: repeat(var(--grid-count), calc(var(--board-size) / var(--grid-count)));
-	grid-template-rows: repeat(var(--grid-count), calc(var(--board-size) / var(--grid-count)));
+	grid-template-columns: repeat(var(--grid-count), var(--cell-size));
+	grid-template-rows: repeat(var(--grid-count), var(--cell-size));
 }
 
 .board-lines {
-	background-image: linear-gradient(to top, var(--border-color) 1px, transparent 1px),
-	linear-gradient(to right, var(--border-color) 1px, transparent 1px),
-	linear-gradient(to bottom, var(--border-color) 1px, transparent 1px),
-	linear-gradient(to left, var(--border-color) 1px, transparent 1px);
-	background-size: calc(var(--board-size) / var(--grid-count)) calc(var(--board-size) / var(--grid-count));
-	box-shadow: 0 0 0 3px var(--border-color);
+	background-image: linear-gradient(to top, var(--border-color) var(--cell-border-width), transparent 1px),
+	linear-gradient(to right, var(--border-color) var(--cell-border-width), transparent 0),
+	linear-gradient(to bottom, var(--border-color) var(--cell-border-width), transparent 0),
+	linear-gradient(to left, var(--border-color) var(--cell-border-width), transparent 0);
+	background-size: var(--cell-size) var(--cell-size);
+	box-shadow: 0 0 0 calc(var(--cell-border-width) * 3) var(--border-color);
 }
 
 @keyframes jelly-black {
@@ -240,6 +244,10 @@ select:focus {
 	border-radius: 50%;
 }
 
+#board .stone {
+	margin: calc(var(--cell-size) / 6);
+}
+
 .stone.double {
 	animation: jelly-double 0.5s;
 	background: linear-gradient(-55deg, #DDDDDD, #EEEEEE 50%, #373737 50%, #737373);
@@ -280,17 +288,17 @@ select:focus {
 	height: 0;
 	transition: background-color 0.1s, width 0.1s, height 0.1s;
 	transform: translate(-50%, -50%);
-	border-radius: 50%;
+	border-radius: 100%;
 }
 
 .stone.weak-charge > .stone-center {
-	width: 5px;
-	height: 5px;
+	width: calc(var(--cell-size) / 12);
+	height: calc(var(--cell-size) / 12);
 }
 
 .stone.strong-charge > .stone-center {
-	width: 10px;
-	height: 10px;
+	width: calc(var(--cell-size) / 6);
+	height: calc(var(--cell-size) / 6);
 }
 
 .stone.black > .stone-center {
@@ -303,7 +311,7 @@ select:focus {
 
 .left-bar, .right-bar {
 	width: calc((100vw - var(--board-size)) / 2 - var(--board-size) / 20);
-	margin-top: calc(var(--board-size) / 20);
+	margin-top: var(--board-padding);
 	text-align: center;
 }
 

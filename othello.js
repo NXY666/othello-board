@@ -23,19 +23,19 @@ async function fullscreen() {
 
 // 历史记录
 let undoList = [], redoList = [];
-function makeHistoryItem(turn) {
+function creatHistory(turn) {
 	let historyItem = JSON.parse(JSON.stringify(OTHELLO_BOARD));
 	historyItem.turn = turn;
 	historyItem.canPlaceCount = OTHELLO_BOARD.canPlaceCount;
 	return historyItem;
 }
 function recordHistory(turn) {
-	undoList.push(makeHistoryItem(turn));
+	undoList.push(creatHistory(turn));
 	redoList = [];
 }
 function undoHistory() {
 	if (undoList.length > 0) {
-		redoList.push(makeHistoryItem(turn));
+		redoList.push(creatHistory(turn));
 
 		let undoItem = undoList.pop();
 		undoItem.forEach((undoRow, rowIndex) => {
@@ -53,7 +53,7 @@ function undoHistory() {
 }
 function redoHistory() {
 	if (redoList.length > 0) {
-		undoList.push(makeHistoryItem(turn));
+		undoList.push(creatHistory(turn));
 
 		let redoItem = redoList.pop();
 		redoItem.forEach((redoRow, rowIndex) => {
